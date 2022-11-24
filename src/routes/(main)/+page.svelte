@@ -15,7 +15,7 @@
 {#if !$healthy }
     <h1 class="subtitle">Connect to a content server:</h1>
     <div class="box">
-        <form>
+        <form on:submit|preventDefault={set_host}>
             <div class="field has-addons">
                 <p class="control">
                     <a class="button is-static">
@@ -27,7 +27,7 @@
                 </div>
 
                 <p class="control">
-                    <a class="button is-primary" type="submit" on:click={set_host}>Connect</a>
+                    <button class="button is-primary" type="submit">Connect</button>
                 </p>
             </div>
         </form>

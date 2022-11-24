@@ -17,7 +17,7 @@ async function test_connection(host: string | undefined): Promise<void> {
         return;
     }
     try {
-        let response = (await fetch(`${host}/health`));
+        let response = await fetch(`${host}/health`, { method: "POST" });
         healthy.set(response.ok);
         if (!response.ok) {
             connection_error.set(
