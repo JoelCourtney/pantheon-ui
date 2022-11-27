@@ -1,48 +1,81 @@
 import { writable, type Writable } from "svelte/store";
 
-export const host: Writable<string | undefined> = writable();
+export let state: Writable<NotConnected | Connected> = writable({connected: false});
 
-export const healthy: Writable<boolean> = writable(false);
-
-type ConnectionError = {
-    status: number,
-    error: string
+export interface NotConnected {
+    connected: false,
+    error?: ConnectionError
 }
-export const connection_error: Writable<ConnectionError | undefined> = writable();
+export interface Connected {
+    connected: true,
+    host: string,
+    layout: any,
+    character_viewer: CharacterState,
+    content_browser: ContentBrowserState
+}
 
-async function test_connection(host: string | undefined): Promise<void> {
-    if (host === undefined) {
-        healthy.set(false);
-        connection_error.set(undefined);
-        return;
-    }
+export interface ConnectionError {
+    status: number,
+    message: string
+}
+
+export interface CharacterState {
+    paths: string[],
+    current?: string
+}
+
+export interface ContentBrowserState {
+    paths: string[],
+    visible: boolean,
+    history: string[],
+    current?: number
+}
+
+interface ContentLists {
+    characters: string[],
+    files: string[]
+}
+
+export async function connect(host: string): Promise<void> {
     try {
-        let response = await fetch(`${host}/health`, { method: "POST" });
-        healthy.set(response.ok);
-        if (!response.ok) {
-            connection_error.set(
-                {
-                    status: response.status,
-                    error: await response.text()
+        let response = await fetch(`${host}/list`, { method: "POST" });
+        if (response.ok) {
+            let lists = await response.json() as ContentLists;
+            state.set({
+                connected: true,
+                host,
+                layout: {},
+                character_viewer: {
+                    paths: lists.characters
+                },
+                content_browser: {
+                    paths: lists.files,
+                    visible: false,
+                    history: []
                 }
-            )
+            });
         } else {
-            connection_error.set(undefined);
+            state.set({
+                connected: false,
+                error: {
+                    status: response.status,
+                    message: await response.text(),
+                }
+            });
         }
     } catch(e: any) {
-        healthy.set(false);
-        connection_error.set(
-            {
+        state.set({
+            connected: false,
+            error: {
                 status: 418,
-                error: e.toString()
+                message: e.toString(),
             }
-        )
+        });
     }
 }
-host.subscribe(test_connection);
 
 export function disconnect() {
-    healthy.set(false);
-    host.set(undefined);
-    connection_error.set(undefined);
+    state.set({
+        connected: false
+    });
 }
