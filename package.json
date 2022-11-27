@@ -10,12 +10,16 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check .",
-		"format": "prettier --plugin-search-dir . --write ."
+		"format": "prettier --plugin-search-dir . --write .",
+		"css-build": "node-sass --omit-source-map-url sass/style.scss static/style.css",
+		"css-watch": "npm run css-build -- --watch"
 	},
 	"devDependencies": {
 		"@playwright/test": "1.25.0",
 		"@sveltejs/adapter-static": "^1.0.0-next.48",
 		"@sveltejs/kit": "next",
+		"bulma": "^0.9.4",
+		"node-sass": "^8.0.0",
 		"prettier": "^2.6.2",
 		"prettier-plugin-svelte": "^2.7.0",
 		"svelte": "^3.44.0",
@@ -25,5 +29,8 @@
 		"typescript": "^4.7.4",
 		"vite": "^3.1.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"string-similarity": "^4.0.4"
+	}
 }
